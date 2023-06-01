@@ -21,7 +21,7 @@ CROSS_PREFIX=$TOOLCHAIN/aarch64-linux-android-
 PREFIX=$(pwd)/android/$CPU
 OPTIMIZE_CFLAGS="-march=$CPU"
 
-ADDI_LDFLAGS="-L./openssl/$CPU/lib -lssl -lcrypto"
+ADDI_LDFLAGS="-L./openssl/$CPU/lib -lssl -lcrypto -llog"
 ADDI_CFLAGS="-Os -fpic -DBIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD $OPTIMIZE_CFLAGS -I./openssl/$CPU/include"
 ADDITIONAL_CONFIGURE_FLAG="--enable-asm --enable-inline-asm"
 
@@ -38,8 +38,8 @@ function update_platfrom_para {
         CXX=$TOOLCHAIN/armv7a-linux-androideabi21-clang++
         STRIP=$TOOLCHAIN/arm-linux-androideabi-strip
         CROSS_PREFIX=$TOOLCHAIN/arm-linux-androideabi-
-        ADDI_LDFLAGS="-fPIE -pie -L./openssl/$CPU/lib -lssl -lcrypto"
-        ADDI_CFLAGS="-mfloat-abi=softfp -mfpu=neon $OPTIMIZE_CFLAGS -I./openssl/$CPU/include"
+        ADDI_LDFLAGS="-fPIE -pie -L./openssl/$CPU/lib -lssl -lcrypto -llog"
+        ADDI_CFLAGS="-mfloat-abi=softfp -mfpu=vfp -marm $OPTIMIZE_CFLAGS -I./openssl/$CPU/include"
         ADDITIONAL_CONFIGURE_FLAG="--disable-asm"
     elif [ "$1" = "x86" ]; then
         echo "platfrom architecture $1"
@@ -47,11 +47,12 @@ function update_platfrom_para {
         ARCH=x86
         PREFIX=$(pwd)/android/$ARCH
         OPTIMIZE_CFLAGS="-march=atom"
-        CC=$TOOLCHAIN/i686-linux-android29-clang
-        CXX=$TOOLCHAIN/i686-linux-android29-clang++
+        CC=$TOOLCHAIN/i686-linux-android21-clang
+        CXX=$TOOLCHAIN/i686-linux-android21-clang++
         CROSS_PREFIX=$TOOLCHAIN/i686-linux-android-
-        ADDI_LDFLAGS="-L./openssl/$ARCH/lib -lssl -lcrypto"
+        ADDI_LDFLAGS="-L./openssl/$ARCH/lib -lssl -lcrypto -llog"
         ADDI_CFLAGS="-msse3 -ffast-math -mfpmath=sse $OPTIMIZE_CFLAGS -I./openssl/$ARCH/include"
+        ADDITIONAL_CONFIGURE_FLAG="--disable-asm"
 
     elif [ "$1" = "x86_64" ]; then
         echo "platfrom architecture $1"
@@ -60,7 +61,7 @@ function update_platfrom_para {
         CC=$TOOLCHAIN/x86_64-linux-android29-clang
         CXX=$TOOLCHAIN/x86_64-linux-android29-clang++
         CROSS_PREFIX=$TOOLCHAIN/x86_64-linux-android-
-        ADDI_LDFLAGS="-L./openssl/$ARCH/lib -lssl -lcrypto"
+        ADDI_LDFLAGS="-L./openssl/$ARCH/lib -lssl -lcrypto -llog"
         ADDI_CFLAGS="-I./openssl/$ARCH/include"
     else
         echo "unknown platfrom architecture $1";
@@ -90,7 +91,6 @@ function ff_configure
         --disable-ffmpeg \
         --disable-ffprobe \
         --disable-avfilter \
-        --disable-avdevice \
         --disable-avdevice \
         --disable-swresample \
         --disable-postproc \
